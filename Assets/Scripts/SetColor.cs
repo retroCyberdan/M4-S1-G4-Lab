@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class SetColor : MonoBehaviour
 {
+    private Camera _cam;
     private Material _material;
-    private Color _defaultColor;
     private ColorManager _colorManager;
+    private Color _defaultColor;
 
     void Start()
     {
+        _cam = Camera.main;
         _material = GetComponent<MeshRenderer>().material;
         _colorManager = FindAnyObjectByType<ColorManager>();
         _defaultColor = _material.color;
@@ -17,13 +20,23 @@ public class SetColor : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(1)) // <- con click destro riporta al colore di default
+        if (Input.GetMouseButtonDown(1))
         {
-            _material.SetColor("_BaseColor", _defaultColor);
+            _material.SetColor("_BaseColor", _defaultColor); // <- ripristina il colore di default con il tasto destro
+
         }
-    }
-    void OnMouseDown()
-    {
-        _material.color = _colorManager.SelectedColor; // <- quando clicco con il mouse, richiama la property in ColorManager
+
+        if (Input.GetMouseButton(0)) // <- con tasto sinistro premuto
+        {
+            Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                if (hit.transform == transform) // <- controllo se l'oggetto colpito è questo stesso oggetto
+                {
+                    _material.color = _colorManager.SelectedColor;
+                }
+            }
+        }
     }
 }
